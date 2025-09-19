@@ -1,0 +1,281 @@
+{
+  "testUsers": {
+    "students": [
+      {
+        "name": "Emma Watson",
+        "email": "emma.student@test.com",
+        "password": "student123",
+        "role": "student",
+        "dob": "2009-07-15",
+        "classStandard": "Class 9"
+      },
+      {
+        "name": "John Smith",
+        "email": "john.student@test.com",
+        "password": "student123",
+        "role": "student",
+        "dob": "2010-03-22",
+        "classStandard": "Class 8"
+      },
+      {
+        "name": "Priya Sharma",
+        "email": "priya.student@test.com",
+        "password": "student123",
+        "role": "student",
+        "dob": "2008-11-10",
+        "classStandard": "Class 10"
+      }
+    ],
+    "teachers": [
+      {
+        "name": "Dr. Michael Johnson",
+        "email": "michael.teacher@test.com",
+        "password": "teacher123",
+        "role": "teacher"
+      },
+      {
+        "name": "Prof. Sarah Chen",
+        "email": "sarah.teacher@test.com",
+        "password": "teacher123",
+        "role": "teacher"
+      }
+    ],
+    "admin": {
+      "name": "System Admin",
+      "email": "admin@test.com",
+      "password": "admin123",
+      "role": "admin"
+    }
+  },
+  "testCourses": [
+    {
+      "title": "Earthquake Preparedness 101",
+      "description": "Learn the basics of earthquake safety, from preparation to response. Covers Drop, Cover, Hold On technique and emergency kit preparation.",
+      "category": "earthquake",
+      "difficulty": "beginner",
+      "targetAge": { "min": 8, "max": 14 },
+      "estimatedDuration": 90,
+      "tags": ["earthquake", "safety", "emergency", "basics"]
+    },
+    {
+      "title": "Flood Safety and Response",
+      "description": "Comprehensive guide to flood preparedness, evacuation procedures, and water safety during flooding events.",
+      "category": "flood",
+      "difficulty": "intermediate",
+      "targetAge": { "min": 10, "max": 16 },
+      "estimatedDuration": 120,
+      "tags": ["flood", "water safety", "evacuation", "emergency planning"]
+    },
+    {
+      "title": "Fire Emergency Response",
+      "description": "Critical fire safety skills including escape planning, smoke safety, and fire prevention techniques for homes and schools.",
+      "category": "fire",
+      "difficulty": "beginner",
+      "targetAge": { "min": 6, "max": 12 },
+      "estimatedDuration": 75,
+      "tags": ["fire safety", "escape plan", "prevention", "smoke"]
+    },
+    {
+      "title": "Cyclone and Hurricane Preparedness",
+      "description": "Advanced course on tropical cyclone preparation, shelter safety, and post-storm recovery procedures.",
+      "category": "cyclone",
+      "difficulty": "advanced",
+      "targetAge": { "min": 14, "max": 18 },
+      "estimatedDuration": 150,
+      "tags": ["cyclone", "hurricane", "wind safety", "shelter"]
+    }
+  ],
+  "testQuizQuestions": [
+    {
+      "questionText": "What is the correct immediate response when you feel an earthquake?",
+      "questionType": "multiple-choice",
+      "options": [
+        { "text": "Drop to hands and knees, take cover under a desk, and hold on", "isCorrect": true },
+        { "text": "Run outside immediately", "isCorrect": false },
+        { "text": "Stand in a doorway", "isCorrect": false },
+        { "text": "Hide under a staircase", "isCorrect": false }
+      ],
+      "explanation": "Drop, Cover, and Hold On is the internationally recognized earthquake safety technique.",
+      "marks": 2,
+      "difficulty": "easy",
+      "timeLimit": 60
+    },
+    {
+      "questionText": "How much water should you store per person per day for emergency preparedness?",
+      "questionType": "multiple-choice",
+      "options": [
+        { "text": "1/2 gallon", "isCorrect": false },
+        { "text": "1 gallon", "isCorrect": true },
+        { "text": "2 gallons", "isCorrect": false },
+        { "text": "3 gallons", "isCorrect": false }
+      ],
+      "explanation": "The recommended amount is 1 gallon per person per day for drinking, cooking, and basic hygiene.",
+      "marks": 1,
+      "difficulty": "medium",
+      "timeLimit": 45
+    },
+    {
+      "questionText": "True or False: You should open windows during a tornado to equalize pressure.",
+      "questionType": "true-false",
+      "options": [
+        { "text": "True", "isCorrect": false },
+        { "text": "False", "isCorrect": true }
+      ],
+      "explanation": "This is a dangerous myth. Focus on getting to the lowest floor and interior room instead.",
+      "marks": 1,
+      "difficulty": "medium",
+      "timeLimit": 30
+    },
+    {
+      "questionText": "Fill in the blank: The emergency contact number for disasters in most countries is ___.",
+      "questionType": "fill-blank",
+      "correctAnswer": "911",
+      "explanation": "911 is the emergency number in the US, while other countries have their own (112 in EU, 000 in Australia, etc.)",
+      "marks": 1,
+      "difficulty": "easy",
+      "timeLimit": 30
+    }
+  ],
+  "gameTestData": {
+    "storyGameRequests": [
+      {
+        "disasterType": "earthquake",
+        "userAge": 12
+      },
+      {
+        "disasterType": "flood",
+        "userAge": 14
+      },
+      {
+        "disasterType": "fire",
+        "userAge": 10
+      }
+    ],
+    "scenarioGameRequests": [
+      {
+        "disasterType": "earthquake"
+      },
+      {
+        "disasterType": "flood"
+      }
+    ],
+    "kitGameRequests": [
+      {
+        "budget": 50,
+        "familySize": 2
+      },
+      {
+        "budget": 100,
+        "familySize": 4
+      },
+      {
+        "budget": 150,
+        "familySize": 6
+      }
+    ],
+    "sampleKitEvaluation": {
+      "gameId": "kit_test_123",
+      "selectedItems": [
+        { "id": 1, "name": "Water bottles (24-pack)", "cost": 15, "days": 3, "essential": true },
+        { "id": 4, "name": "Canned food (variety pack)", "cost": 20, "days": 7, "essential": true },
+        { "id": 8, "name": "Flashlight", "cost": 15, "essential": true },
+        { "id": 10, "name": "First aid kit", "cost": 25, "essential": true },
+        { "id": 13, "name": "Emergency blankets", "cost": 8, "essential": true }
+      ],
+      "totalCost": 83,
+      "familySize": 4
+    }
+  },
+  "sampleQuizSubmission": {
+    "answers": [
+      {
+        "questionId": "question_id_1",
+        "selectedOption": "Drop to hands and knees, take cover under a desk, and hold on",
+        "timeSpent": 45
+      },
+      {
+        "questionId": "question_id_2",
+        "selectedOption": "1 gallon",
+        "timeSpent": 30
+      },
+      {
+        "questionId": "question_id_3",
+        "selectedOption": "False",
+        "timeSpent": 20
+      },
+      {
+        "questionId": "question_id_4",
+        "userAnswer": "911",
+        "timeSpent": 15
+      }
+    ],
+    "timeTaken": 180,
+    "status": "completed"
+  },
+  "apiEndpoints": {
+    "auth": [
+      "POST /api/auth/register",
+      "POST /api/auth/login",
+      "GET /api/auth/me",
+      "PUT /api/auth/profile",
+      "PUT /api/auth/password"
+    ],
+    "courses": [
+      "GET /api/courses",
+      "POST /api/courses",
+      "GET /api/courses/:id",
+      "PUT /api/courses/:id",
+      "DELETE /api/courses/:id",
+      "POST /api/courses/:id/enroll",
+      "GET /api/courses/:id/progress",
+      "POST /api/courses/modules/:id/submit"
+    ],
+    "games": [
+      "POST /api/games/story",
+      "POST /api/games/story/choice",
+      "POST /api/games/scenario",
+      "POST /api/games/scenario/submit",
+      "POST /api/games/kit",
+      "POST /api/games/kit/evaluate",
+      "GET /api/games/stats"
+    ]
+  },
+  "testScenarios": [
+    {
+      "name": "Complete Student Journey",
+      "steps": [
+        "1. Register as student",
+        "2. Login and get authentication token",
+        "3. Browse available courses",
+        "4. Enroll in a course",
+        "5. Take a quiz",
+        "6. Play story game",
+        "7. Play scenario game",
+        "8. Build emergency kit",
+        "9. Check game statistics"
+      ]
+    },
+    {
+      "name": "Teacher Workflow",
+      "steps": [
+        "1. Register as teacher",
+        "2. Login and authenticate",
+        "3. Create a new course",
+        "4. Add modules to course",
+        "5. Create quiz questions",
+        "6. Publish course",
+        "7. Monitor student enrollments"
+      ]
+    },
+    {
+      "name": "Error Testing",
+      "steps": [
+        "1. Test invalid registration data",
+        "2. Test unauthorized access to protected routes",
+        "3. Test invalid course creation",
+        "4. Test game APIs without authentication",
+        "5. Test invalid quiz submissions"
+      ]
+    }
+  ]
+}

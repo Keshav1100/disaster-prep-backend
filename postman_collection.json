@@ -1,0 +1,272 @@
+{
+  "info": {
+    "name": "Disaster Preparedness API",
+    "description": "Complete API collection for testing the Disaster Preparedness and Response Education System",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5002",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register Student",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Alex Johnson\",\n  \"email\": \"alex.student@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"student\",\n  \"dob\": \"2010-05-15\",\n  \"classStandard\": \"Class 8\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Register Teacher",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Dr. Sarah Smith\",\n  \"email\": \"sarah.teacher@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"teacher\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"alex.student@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Courses",
+      "item": [
+        {
+          "name": "Create Course",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Earthquake Safety Fundamentals\",\n  \"description\": \"Learn essential earthquake preparedness and response techniques for students and families.\",\n  \"category\": \"earthquake\",\n  \"difficulty\": \"beginner\",\n  \"targetAge\": {\n    \"min\": 10,\n    \"max\": 16\n  },\n  \"estimatedDuration\": 120,\n  \"tags\": [\"earthquake\", \"safety\", \"preparedness\", \"emergency\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/courses",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses"]
+            }
+          }
+        },
+        {
+          "name": "Get All Courses",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/courses",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses"]
+            }
+          }
+        },
+        {
+          "name": "Get Course by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/COURSE_ID",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses", "COURSE_ID"]
+            }
+          }
+        },
+        {
+          "name": "Enroll in Course",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/courses/COURSE_ID/enroll",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "courses", "COURSE_ID", "enroll"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Games",
+      "item": [
+        {
+          "name": "Story Game - Get Scenario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"disasterType\": \"earthquake\",\n  \"userAge\": 12\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/games/story",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "games", "story"]
+            }
+          }
+        },
+        {
+          "name": "Scenario Game - Get Challenge",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"disasterType\": \"flood\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/games/scenario",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "games", "scenario"]
+            }
+          }
+        },
+        {
+          "name": "Kit Building Game",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"budget\": 100,\n  \"familySize\": 4\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/games/kit",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "games", "kit"]
+            }
+          }
+        },
+        {
+          "name": "Get Game Statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/games/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "games", "stats"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
