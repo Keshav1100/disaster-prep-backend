@@ -9,18 +9,24 @@ const courseSchema = new mongoose.Schema({
     type: String, 
     required: true 
   },
+  videoUrl: {
+    type: String,
+    required: true,
+    validate: {
+      validator: function(v) {
+        return /^(https?\:\/\/)?(www\.)?(youtube\.com|youtu\.be)/.test(v);
+      },
+      message: 'Please provide a valid YouTube URL'
+    }
+  },
   createdBy: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: "User", 
     required: true 
   },
-  modules: [{ 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: "Module" 
-  }],
   category: {
     type: String,
-    enum: ["earthquake", "flood", "fire", "cyclone", "general"],
+    enum: ["earthquake", "flood", "fire", "cyclone", "tornado", "tsunami", "general"],
     default: "general"
   },
   difficulty: {
@@ -28,36 +34,25 @@ const courseSchema = new mongoose.Schema({
     enum: ["beginner", "intermediate", "advanced"],
     default: "beginner"
   },
-  targetAge: {
-    min: { type: Number, default: 8 },
-    max: { type: Number, default: 18 }
-  },
   estimatedDuration: { // in minutes
     type: Number,
-    default: 60
+    default: 30
   },
   enrolledStudents: [{ 
     type: mongoose.Schema.Types.ObjectId, 
     ref: "User" 
   }],
-  tags: [String],
+  completedStudents: [{
+    studentId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    completedAt: { type: Date, default: Date.now },
+    quizScore: { type: Number, default: 0 },
+    totalQuestions: { type: Number, default: 0 }
+  }],
   isPublished: { 
     type: Boolean, 
-    default: false 
+    default: true 
   },
-  thumbnailUrl: String,
-  totalModules: { 
-    type: Number, 
-    default: 0 
-  },
-  averageRating: { 
-    type: Number, 
-    default: 0 
-  },
-  ratingsCount: { 
-    type: Number, 
-    default: 0 
-  }
+  thumbnailUrl: String
 }, { timestamps: true });
 
 // Virtual for enrolled count
@@ -66,6 +61,6 @@ courseSchema.virtual('enrolledCount').get(function() {
 });
 
 // Index for search
-courseSchema.index({ title: 'text', description: 'text', tags: 'text' });
+courseSchema.index({ title: 'text', description: 'text' });
 
 export default mongoose.model("Course", courseSchema);

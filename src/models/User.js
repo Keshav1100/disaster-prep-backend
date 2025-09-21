@@ -10,6 +10,9 @@ const userSchema = new mongoose.Schema({
   dob: { type: Date },
   classStandard: { type: String }, // "Class 8" or "Grade 10"
 
+  // Track who created student accounts
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+
   school: { type: mongoose.Schema.Types.ObjectId, ref: "School" },
 
   region: {

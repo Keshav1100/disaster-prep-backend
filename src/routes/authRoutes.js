@@ -4,7 +4,8 @@ import {
   loginUser, 
   getMe, 
   updateProfile, 
-  changePassword 
+  changePassword,
+  refreshToken
 } from "../controllers/authController.js";
 import { protect } from "../middleware/auth.js";
 
@@ -13,6 +14,7 @@ const router = express.Router();
 // Public routes
 router.post("/register", registerUser);
 router.post("/login", loginUser);
+router.post("/refresh", refreshToken);
 
 // Protected routes
 router.get("/me", protect, getMe);

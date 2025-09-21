@@ -2,9 +2,26 @@ import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-// generate JWT
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
+// Generate Access Token
+const generateAccessToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, { 
+    expiresIn: process.env.JWT_EXPIRE || "15m" 
+  });
+};
+
+// Generate Refresh Token
+const generateRefreshToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_REFRESH_SECRET, { 
+    expiresIn: process.env.JWT_REFRESH_EXPIRE || "7d" 
+  });
+};
+
+// Generate both tokens
+const generateTokens = (id) => {
+  return {
+    accessToken: generateAccessToken(id),
+    refreshToken: generateRefreshToken(id)
+  };
 };
 
 // @desc Register user
@@ -12,7 +29,14 @@ export const registerUser = async (req, res) => {
   try {
     const { name, email, password, role, dob, classStandard } = req.body;
 
-    // Validation: if student, must have dob & classStandard
+    // Restrict student registration - students can only login, not register
+    if (role === "student") {
+      return res.status(403).json({ 
+        message: "Student registration is disabled. Please contact your teacher for login credentials." 
+      });
+    }
+
+    // Validation: if student, must have dob & classStandard (for future teacher-created accounts)
     if (role === "student" && (!dob || !classStandard)) {
       return res.status(400).json({ 
         message: "Students must provide date of birth and class standard" 
@@ -38,14 +62,21 @@ export const registerUser = async (req, res) => {
       classStandard: role === "student" ? classStandard : null
     });
 
+    const tokens = generateTokens(user._id);
+
     res.status(201).json({
       success: true,
       data: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        token: generateToken(user._id)
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          dob: user.dob,
+          classStandard: user.classStandard
+        },
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken
       }
     });
   } catch (err) {
@@ -66,14 +97,21 @@ export const loginUser = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (user && (await bcrypt.compare(password, user.passwordHash))) {
+      const tokens = generateTokens(user._id);
+      
       res.json({
         success: true,
         data: {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          token: generateToken(user._id)
+          user: {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            dob: user.dob,
+            classStandard: user.classStandard
+          },
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken
         }
       });
     } else {
@@ -150,5 +188,41 @@ export const changePassword = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc Refresh access token
+// @route POST /api/auth/refresh
+// @access Public
+export const refreshToken = async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(401).json({ message: "Refresh token required" });
+    }
+
+    // Verify refresh token
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+    
+    // Get user
+    const user = await User.findById(decoded.id).select('-passwordHash');
+    
+    if (!user) {
+      return res.status(401).json({ message: "Invalid refresh token" });
+    }
+
+    // Generate new tokens
+    const tokens = generateTokens(user._id);
+
+    res.json({
+      success: true,
+      data: {
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken
+      }
+    });
+  } catch (error) {
+    res.status(401).json({ message: "Invalid refresh token" });
   }
 };

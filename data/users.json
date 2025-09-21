@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Sarah Johnson",
+    "email": "sarah.teacher@disastered.com",
+    "password": "$2b$10$NW1H2TT7XBDnRKGmhEoKye8y30F92.ooZg9BSYpjAt2V4w7X2oaJ6",
+    "role": "teacher",
+    "isActive": true,
+    "_id": "1758428830794p5ldzhb1o",
+    "createdAt": "2025-09-21T04:27:10.794Z"
+  },
+  {
+    "name": "Alex Student",
+    "email": "alex.student@disastered.com",
+    "password": "$2b$10$K624aY.7DV4tF9fVzxa5Su2ZVo8cZuKGZThLm6QYq5iZobhYlEwkS",
+    "role": "student",
+    "isActive": true,
+    "teacherId": "1758428830794p5ldzhb1o",
+    "_id": "1758428830797e7euj5m9z",
+    "createdAt": "2025-09-21T04:27:10.797Z",
+    "updatedAt": "2025-09-21T04:27:10.798Z"
+  }
+]

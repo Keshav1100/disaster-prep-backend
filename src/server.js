@@ -7,6 +7,7 @@ import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import courseRoutes from "./routes/courseRoutes.js";
 import gameRoutes from "./routes/gameRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 import { errorHandler, notFound } from "./middleware/errorMiddleware.js";
 
 // Load environment variables
@@ -35,7 +36,8 @@ app.get("/", (req, res) => {
     endpoints: {
       auth: "/api/auth",
       courses: "/api/courses", 
-      games: "/api/games"
+      games: "/api/games",
+      users: "/api/users"
     }
   });
 });
@@ -44,6 +46,7 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/games", gameRoutes);
+app.use("/api/users", userRoutes);
 
 // Error handling middleware
 app.use(notFound);

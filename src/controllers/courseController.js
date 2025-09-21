@@ -1,31 +1,47 @@
 import Course from "../models/Course.js";
-import Module from "../models/Module.js";
 import QuizQuestion from "../models/QuizQuestion.js";
-import Attempt from "../models/Attempt.js";
+import QuizAttempt from "../models/QuizAttempt.js";
 import User from "../models/User.js";
 
-// @desc    Create a new course
+// @desc    Create a new course with quiz questions
 // @route   POST /api/courses
 // @access  Private (teacher only)
 export const createCourse = async (req, res) => {
   try {
-    const { title, description, category, difficulty, targetAge, estimatedDuration, tags } = req.body;
+    const { title, description, videoUrl, category, difficulty, estimatedDuration, quizQuestions } = req.body;
 
     // Check if user is a teacher
     if (req.user.role !== 'teacher' && req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Only teachers can create courses' });
     }
 
+    // Validate YouTube URL
+    const youtubeRegex = /^(https?\:\/\/)?(www\.)?(youtube\.com|youtu\.be)/;
+    if (!youtubeRegex.test(videoUrl)) {
+      return res.status(400).json({ message: 'Please provide a valid YouTube URL' });
+    }
+
+    // Create the course
     const course = await Course.create({
       title,
       description,
+      videoUrl,
       createdBy: req.user._id,
       category,
       difficulty,
-      targetAge,
-      estimatedDuration,
-      tags
+      estimatedDuration
     });
+
+    // Create quiz questions if provided
+    if (quizQuestions && quizQuestions.length > 0) {
+      const questionsWithCourseId = quizQuestions.map((question, index) => ({
+        ...question,
+        courseId: course._id,
+        order: index + 1
+      }));
+      
+      await QuizQuestion.insertMany(questionsWithCourseId);
+    }
 
     await course.populate('createdBy', 'name email');
 
@@ -342,6 +358,210 @@ export const deleteCourse = async (req, res) => {
     res.json({
       success: true,
       message: 'Course deleted successfully'
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Get course quiz questions
+// @route   GET /api/courses/:id/quiz
+// @access  Private (enrolled students and course creator)
+export const getCourseQuiz = async (req, res) => {
+  try {
+    const course = await Course.findById(req.params.id);
+    
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    // Check if user is enrolled or is the course creator
+    const isEnrolled = course.enrolledStudents.includes(req.user._id);
+    const isCreator = course.createdBy.toString() === req.user._id.toString();
+    
+    if (!isEnrolled && !isCreator && req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'You must be enrolled in this course to access the quiz' });
+    }
+
+    const questions = await QuizQuestion.find({ courseId: req.params.id })
+      .select('-options.isCorrect') // Don't send correct answers to students
+      .sort({ order: 1 });
+
+    res.json({
+      success: true,
+      data: questions
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Submit quiz attempt
+// @route   POST /api/courses/:id/quiz/submit
+// @access  Private (enrolled students)
+export const submitQuiz = async (req, res) => {
+  try {
+    const { answers } = req.body;
+    const course = await Course.findById(req.params.id);
+    
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    // Check if user is enrolled
+    if (!course.enrolledStudents.includes(req.user._id)) {
+      return res.status(403).json({ message: 'You must be enrolled in this course to submit quiz' });
+    }
+
+    // Get all quiz questions for this course
+    const questions = await QuizQuestion.find({ courseId: req.params.id }).sort({ order: 1 });
+    
+    let totalMarks = 0;
+    let maxMarks = 0;
+    const processedAnswers = [];
+
+    // Calculate scores
+    for (let i = 0; i < questions.length; i++) {
+      const question = questions[i];
+      const userAnswer = answers[i];
+      maxMarks += question.marks;
+
+      if (userAnswer !== undefined) {
+        const selectedOption = question.options[userAnswer];
+        const isCorrect = selectedOption && selectedOption.isCorrect;
+        const marks = isCorrect ? question.marks : 0;
+        totalMarks += marks;
+
+        processedAnswers.push({
+          questionId: question._id,
+          selectedOption: userAnswer,
+          isCorrect,
+          marks
+        });
+      }
+    }
+
+    // Create quiz attempt
+    const quizAttempt = await QuizAttempt.create({
+      studentId: req.user._id,
+      courseId: req.params.id,
+      answers: processedAnswers,
+      totalMarks,
+      maxMarks
+    });
+
+    // If quiz passed, mark course as completed
+    if (quizAttempt.passed) {
+      const completionRecord = {
+        studentId: req.user._id,
+        completedAt: new Date(),
+        quizScore: totalMarks,
+        totalQuestions: questions.length
+      };
+
+      // Check if already completed
+      const alreadyCompleted = course.completedStudents.some(
+        comp => comp.studentId.toString() === req.user._id.toString()
+      );
+
+      if (!alreadyCompleted) {
+        course.completedStudents.push(completionRecord);
+        await course.save();
+      }
+    }
+
+    res.json({
+      success: true,
+      data: {
+        totalMarks,
+        maxMarks,
+        percentage: quizAttempt.percentage,
+        passed: quizAttempt.passed,
+        courseCompleted: quizAttempt.passed
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Mark course as completed (for courses without quiz)
+// @route   POST /api/courses/:id/complete
+// @access  Private (enrolled students)
+export const markCourseComplete = async (req, res) => {
+  try {
+    const course = await Course.findById(req.params.id);
+    
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    // Check if user is enrolled
+    if (!course.enrolledStudents.includes(req.user._id)) {
+      return res.status(403).json({ message: 'You must be enrolled in this course' });
+    }
+
+    // Check if already completed
+    const alreadyCompleted = course.completedStudents.some(
+      comp => comp.studentId.toString() === req.user._id.toString()
+    );
+
+    if (alreadyCompleted) {
+      return res.status(400).json({ message: 'Course already completed' });
+    }
+
+    // Add to completed students
+    course.completedStudents.push({
+      studentId: req.user._id,
+      completedAt: new Date(),
+      quizScore: 0,
+      totalQuestions: 0
+    });
+
+    await course.save();
+
+    res.json({
+      success: true,
+      message: 'Course marked as completed'
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Add quiz questions to existing course
+// @route   POST /api/courses/:id/quiz
+// @access  Private (course creator only)
+export const addQuizQuestions = async (req, res) => {
+  try {
+    const { questions } = req.body;
+    const course = await Course.findById(req.params.id);
+    
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    // Check if user is the course creator
+    if (course.createdBy.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Only course creator can add quiz questions' });
+    }
+
+    // Get current max order
+    const existingQuestions = await QuizQuestion.find({ courseId: req.params.id });
+    const maxOrder = existingQuestions.length > 0 ? Math.max(...existingQuestions.map(q => q.order)) : 0;
+
+    // Add course ID and order to questions
+    const questionsWithMeta = questions.map((question, index) => ({
+      ...question,
+      courseId: req.params.id,
+      order: maxOrder + index + 1
+    }));
+
+    const newQuestions = await QuizQuestion.insertMany(questionsWithMeta);
+
+    res.status(201).json({
+      success: true,
+      data: newQuestions
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
